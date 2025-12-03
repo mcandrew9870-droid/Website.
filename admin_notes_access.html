@@ -12,8 +12,6 @@
             --accent-color: #58a6ff;
             --border-color: #30363d;
             --comment-color: #8b949e;
-            --error-color: #ff7b72;
-            --success-color: #2ea043;
         }
 
         * {
@@ -46,16 +44,11 @@
         .status-dot {
             height: 10px;
             width: 10px;
-            background-color: var(--success-color); /* Green */
+            background-color: #2ea043; /* Green */
             border-radius: 50%;
             display: inline-block;
             margin-right: 8px;
-            box-shadow: 0 0 5px var(--success-color);
-        }
-        
-        .status-dot.error {
-            background-color: var(--error-color); /* Red */
-            box-shadow: 0 0 5px var(--error-color);
+            box-shadow: 0 0 5px #2ea043;
         }
 
         /* Main Layout */
@@ -115,43 +108,24 @@
             position: relative;
         }
 
+        .line-numbers {
+            color: var(--comment-color);
+            margin-right: 15px;
+            user-select: none;
+            display: inline-block;
+            text-align: right;
+            border-right: 1px solid var(--border-color);
+            padding-right: 10px;
+        }
+
         .content-text {
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* Preserves tabs and spaces */
             line-height: 1.6;
-            outline: none; 
+            outline: none; /* Remove default focus outline */
+            min-height: 100%; /* Ensure full clickable area */
         }
 
-        /* Secret Input Styling */
-        #secret-input {
-            background-color: transparent;
-            border: none;
-            color: var(--text-color);
-            font-family: inherit;
-            font-size: 0.9rem;
-            padding: 2px 5px;
-            width: 200px;
-            display: none; /* Starts hidden */
-            margin-top: 10px;
-        }
-
-        /* Seamless Trigger */
-        #secretTrigger {
-            cursor: pointer;
-            /* Make it look exactly like the surrounding log text */
-            color: var(--text-color); 
-            background: transparent;
-            /* Give it a slight width to be clickable */
-            display: inline-block; 
-            padding: 0 2px;
-            border: 0 solid transparent; /* invisible border */
-        }
-        
-        #secretTrigger:hover {
-            border: 1px dashed var(--comment-color); /* Subtle hover hint */
-        }
-
-
-        /* Blinking Cursor */
+        /* Blinking Cursor - Kept for visual style in the footer, but removed from content-text */
         .cursor::after {
             content: '█';
             animation: blink 1s step-end infinite;
@@ -172,16 +146,12 @@
             font-weight: bold;
         }
 
-        .password{
-            border: none;
-        }
-
     </style>
 </head>
 <body>
 
     <header>
-        <div><span class="status-dot" id="systemStatusDot"></span><span id="systemStatusText">SYSTEM_ROOT // READ_ONLY_MODE</span></div>
+        <div><span class="status-dot"></span>SYSTEM_ROOT // **EDIT_MODE_ACTIVE**</div>
         <div id="timestamp">00:00:00</div>
     </header>
 
@@ -193,32 +163,29 @@
         </div>
 
         <div class="editor">
-            <div id="contentDisplay" class="content-text cursor">
+            <div id="contentDisplay" class="content-text" contenteditable="true">
                 // Select a file to view contents...
             </div>
-            <input type="password" id="secret-input" placeholder="Enter security key...">
         </div>
     </div>
 
-    <footer id="footerText">
-        -- INSERT MODE DISABLED -- ADMIN PRIVILEGES REQUIRED --
+    <footer>
+        -- INSERT MODE **ENABLED** -- CLICK THE EDITOR TO TYPE --
     </footer>
 
     <script>
         // ==========================================
         //         ADMIN DATA ENTRY ZONE
         // ==========================================
-        
-        const SECRET_PASSWORD = "KRYPTOS";
-        // Define the target page for redirection
-        const ADMIN_PAGE_URL = "admin_notes_access.html";
+        // EDIT THIS SECTION TO CHANGE YOUR NOTES.
+        // Format: { id: "unique_id", title: "filename", content: "your text here" }
+        // Use \n for new lines.
         
         const database = [
             {
                 id: "001",
                 title: "ACCESS DENIED",
-                // Modified content to include the clickable trigger span
-                content: "###############\n\n##################################################\n##############################################\n#######################################\n##########################################################\n##################################################\n##################################################\n#################\n##########################################\n###############################################\n############################################\n\n\n\n\n keyword: <span id='secretTrigger'>S1JZUFRPUwo=</span>" 
+                content: "###############\n\n##################################################\n##############################################\n#######################################\n##########################################################\n##################################################\n##################################################\n#################\n##########################################\n###############################################\n############################################\n\n\n\n\n keyword: KRYPTOS"
             },
             {
                 id: "002",
@@ -238,17 +205,11 @@
         ];
 
         // ==========================================
-        //          SYSTEM LOGIC (DO NOT EDIT)
+        //          SYSTEM LOGIC
         // ==========================================
 
         const fileListEl = document.getElementById('fileList');
         const contentDisplayEl = document.getElementById('contentDisplay');
-        const secretInputEl = document.getElementById('secret-input');
-        const footerEl = document.getElementById('footerText');
-        const statusDotEl = document.getElementById('systemStatusDot');
-        const statusTextEl = document.getElementById('systemStatusText');
-        let currentFileId = null;
-
 
         // 1. Render Sidebar
         function renderSidebar() {
@@ -264,8 +225,6 @@
 
         // 2. Load Content
         function loadFile(id, element) {
-            currentFileId = id;
-            
             // Remove active class from all
             document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'));
             // Add active class to clicked
@@ -273,82 +232,21 @@
 
             const file = database.find(f => f.id === id);
             
-            // Hide the input field by default
-            secretInputEl.style.display = 'none';
-
             if(file) {
                 // Typewriter effect simulation (instant for now, but feels distinct)
                 contentDisplayEl.innerHTML = `<span style="color: #8b949e;">// Loading ${file.title}...</span><br><br>`;
                 
                 setTimeout(() => {
-                    // Use innerHTML for the file content to parse the <span id='secretTrigger'>
+                    // **CHANGE 2:** Use innerHTML and replace \n with <br> to render line breaks in the editable area
                     contentDisplayEl.innerHTML = file.content.replace(/\n/g, '<br>');
-                    
-                    // Add event listener for the secret trigger only when the specific file is loaded
-                    if (id === "001") {
-                        const trigger = document.getElementById('secretTrigger');
-                        if (trigger) {
-                            trigger.onclick = revealSecretInput;
-                        }
-                    }
                 }, 150);
             }
         }
-        
-        // 3. Secret Logic
-        function revealSecretInput() {
-            // Only reveal if we're not in admin mode
-            if (!document.body.classList.contains('admin-mode')) {
-                secretInputEl.value = '';
-                secretInputEl.style.display = 'block';
-                secretInputEl.focus();
-                footerEl.innerText = "-- PENDING INPUT -- KEY ENTRY REQUIRED --";
-                statusDotEl.classList.add('error');
-            }
-        }
-        
-        function checkPassword() {
-            const password = secretInputEl.value.toUpperCase().trim();
 
-            if (password === SECRET_PASSWORD) {
-                // Success! Redirect the user.
-                
-                // Show a brief success message before redirecting
-                contentDisplayEl.innerHTML = `<span style="color: var(--success-color);">// ACCESS GRANTED. REDIRECTING...</span>`;
-                secretInputEl.style.display = 'none';
-                statusDotEl.classList.remove('error');
-                statusDotEl.style.backgroundColor = 'var(--success-color)';
-                footerEl.innerText = "-- ACCESS GRANTED -- TRANSFERRING TO ADMIN INTERFACE --";
-                
-                // **THE REDIRECTION LOGIC**
-                setTimeout(() => {
-                    window.location.href = ADMIN_PAGE_URL;
-                }, 1000); // Redirect after 1 second
-                
-            } else {
-                // Failure
-                secretInputEl.value = '';
-                secretInputEl.placeholder = "DENIED: Try again...";
-                footerEl.innerText = "-- PENDING INPUT -- INVALID KEY --";
-                setTimeout(() => {
-                    footerEl.innerText = "-- PENDING INPUT -- KEY ENTRY REQUIRED --";
-                    secretInputEl.placeholder = "Enter security key...";
-                }, 2000);
-            }
-        }
-
-        // Event Listeners
-        secretInputEl.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
-        });
-
-        // 4. Live Clock
+        // 3. Live Clock
         function updateTime() {
             const now = new Date();
-            // Use the current date/time when it was executed
-            document.getElementById('timestamp').innerText = "2025-12-03 18:47:24 " + now.toLocaleTimeString();
+            document.getElementById('timestamp').innerText = now.toISOString().split('T')[0] + " " + now.toLocaleTimeString();
         }
 
         // Initialize
