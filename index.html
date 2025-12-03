@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Gate</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        /* --- MINECRAFT THEME CSS --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            /* Minecraft Dirt Texture Pattern via CSS gradients */
+            background-image: repeating-linear-gradient(45deg, #2b1d0e 25%, transparent 25%, transparent 75%, #2b1d0e 75%, #2b1d0e), 
+                              repeating-linear-gradient(45deg, #2b1d0e 25%, #1a1108 25%, #1a1108 75%, #2b1d0e 75%, #2b1d0e);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+            font-family: 'VT323', monospace;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* The Box Container */
+        .mc-box {
+            background-color: #c6c6c6;
+            border: 4px solid #000;
+            padding: 20px;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+            /* Minecraft button border style */
+            border-top-color: #fff;
+            border-left-color: #fff;
+            border-right-color: #555;
+            border-bottom-color: #555;
+            color: #404040;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-top: 0;
+            text-shadow: 2px 2px #555;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin: 0 0 15px 0;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            background-color: #000;
+            color: #fff;
+            border: 2px solid #555;
+            border-bottom-color: #fff;
+            border-right-color: #fff;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+        /* Minecraft Button Style */
+        button {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            background-color: #7d7d7d;
+            color: #fff;
+            border: 4px solid;
+            border-top-color: #aaa;
+            border-left-color: #aaa;
+            border-bottom-color: #222;
+            border-right-color: #222;
+            padding: 10px 30px;
+            cursor: pointer;
+            text-shadow: 2px 2px #000;
+            width: 100%;
+        }
+
+        button:active {
+            border-top-color: #222;
+            border-left-color: #222;
+            border-bottom-color: #aaa;
+            border-right-color: #aaa;
+        }
+
+        button:hover {
+            background-color: #8c8c8c;
+        }
+
+        .error-msg {
+            color: #cc0000;
+            font-size: 1.2rem;
+            min-height: 1.5rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Screens */
+        #home-screen {
+            display: none; /* Hidden by default */
+            color: white;
+            text-align: center;
+        }
+        
+        #home-screen h1 {
+            color: white;
+            text-shadow: 4px 4px 0 #000;
+        }
+
+        .heart {
+            color: red;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="container">
+        <h1 style="color: white; -webkit-text-stroke: 1px black; text-shadow: 4px 4px 0 #3f3f3f;">SERVER LOGIN</h1>
+        
+        <div class="mc-box">
+            <h2>ADMINISTRATOR ACCESS</h2>
+            <p>Please enter Andrew's password:</p>
+            <input type="password" id="passwordInput" placeholder="Password...">
+            <button onclick="checkPassword()">Enter Password</button>
+            <div id="error-message" class="error-msg">Incorrect Password!</div>
+        </div>
+    </div>
+
+    <div id="home-screen">
+        <h1>Welcome Home!</h1>
+        <p style="font-size: 2rem;">ANDREW_FILE_SAVE</p>
+        <br>
+        <div class="mc-box">
+            <p>Access Granted.</p>
+            <p>Status: <strong>Waiting...</strong></p>
+        </div>
+        <br>
+        <button style="width: auto;" onclick="redirectSecret()">Disconnect</button>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT LOGIC ---
+        const CORRECT_PASSWORD = "AndrewLoveSorin";
+
+        function checkPassword() {
+            const input = document.getElementById("passwordInput").value;
+            const errorMsg = document.getElementById("error-message");
+            const loginScreen = document.getElementById("login-screen");
+            const homeScreen = document.getElementById("home-screen");
+
+            // The Password Check
+            if (input === CORRECT_PASSWORD) {
+                // Hide Login, Show Home
+                loginScreen.style.display = "none";
+                homeScreen.style.display = "block";
+            } else {
+                // Show Error
+                errorMsg.style.display = "block";
+                document.getElementById("passwordInput").value = ""; // Clear input
+            }
+        }
+
+        // *** THIS IS THE NEW SECRET REDIRECT FUNCTION ***
+        function redirectSecret() {
+            // This line redirects the browser to the file named 'admin_notes.html'
+            window.location.href = 'admin_notes.html';
+        }
+        // **********************************************
+
+        // Allow pressing "Enter" to submit
+        document.getElementById("passwordInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+</html>
